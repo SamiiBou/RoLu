@@ -1,5 +1,5 @@
 // test_matching.js
-const { matchUsingEmbeddings, matchFreelancerToJob } = require("./matching");
+const { matchUsingEmbeddings, matchFreelancerToJob } = require("../matching");
 
 const freelancerProfile = "John is a full-stack developer with 5 years of experience in Python, JavaScript, and Django. He has built several e-commerce websites and integrated payment systems.";
 const jobDescription = "We need a developer to build an e-commerce platform with custom payment gateway integrations. Experience in Django and JavaScript is required.";
