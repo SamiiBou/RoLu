@@ -23,3 +23,10 @@ Iteration: The script iterates over all mission descriptions.
 Scoring: It computes a similarity score between the freelancer's profile and each mission.
 Ranking: Missions are sorted in descending order based on their similarity scores.
 Detailed Analysis: the top mission is analyzed in detail using the ChatCompletion function.
+
+
+Chatbot :
+
+In addition to the matching simulation, we offer an interactive chatbot. This chatbot is designed to deliver personalized, real-time assistance to jobseekers and recruiters. By leveraging the OpenAI API via Axios, the chatbot generates context-aware responses that help users refine their resumes, prepare for interviews, and explore career opportunities. This functionality enhances user engagement by providing immediate, tailored guidance, ultimately streamlining the connection between freelancers and hiring companies.
+
+To simulate the chatbot on your terminal you can run the node test_chatbot.js
