@@ -1,3 +1,13 @@
+Frontend Calls AI Services:
+
+When a recruiter posts a mission or a freelancer updates their profile, the app calls the matching endpoints to get similarity scores and detailed analyses.
+The results are used to display real-time recommendations and rank candidates/missions.
+
+Chatbot for Enhanced User Interaction:
+
+The integrated chatbot component allows users (jobseekers or recruiters) to ask questions and get instant, context-aware advice.
+This enhances the overall user experience by providing personalized support directly within the app’s interface.
+
 Mathing Simulation Overview:
 
 This simulation script demonstrates how our AI matching service can be used to recommend freelancer profiles to companies and mission posts to freelancers. It uses two main data arrays:

@@ -1,7 +1,7 @@
 // test_chatbot.js
 require('dotenv').config(); // Load environment variables
 const readline = require('readline');
-const { updateConversation } = require('./chatbot');
+const { updateConversation } = require('../chatbot');
 
 // Create a readline interface to capture terminal input.
 const rl = readline.createInterface({
