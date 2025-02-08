@@ -1,5 +1,5 @@
 // matching_simulation.js
-const { matchUsingEmbeddings, matchFreelancerToJob } = require("./matching");
+const { matchUsingEmbeddings, matchFreelancerToJob } = require("../matching");
 
 // A list of freelancer profiles
 const freelancers = [
