@@ -1,7 +1,7 @@
 {
   "name": "example-minikit-server",
   "version": "0.0.0",
-  "description": "",
+  "description": "`pnpm run dev`",
   "main": "index.ts",
   "type": "module",
   "scripts": {
@@ -11,8 +11,9 @@
   "dependencies": {
     "@worldcoin/minikit-js": "1.1.1",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
     "express": "^4.21.0",
-    "node-fetch": "^3.3.2",
+    "node-fetch": "^2.7.0",
     "pino-pretty": "^11.0.0",
     "tsx": "^4.7.2"
   },
@@ -24,5 +25,8 @@
   },
   "engines": {
     "node": ">=16"
-  }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

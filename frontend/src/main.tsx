@@ -1,15 +1,18 @@
+import React, { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App.tsx";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App";
 import "./index.css";
-import MiniKitProvider from "./minikit-provider.tsx";
-import { StrictMode } from "react";
+import MiniKitProvider from "./minikit-provider";
 import { ErudaProvider } from "./components/Eruda";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErudaProvider>
       <MiniKitProvider>
-        <App />
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </MiniKitProvider>
     </ErudaProvider>
   </StrictMode>
