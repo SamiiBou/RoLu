@@ -9,20 +9,20 @@ import {
   IVerifyResponse,
 } from "@worldcoin/minikit-js";
 
-// Import the button from the UI Kit
 import { Button } from "@worldcoin/mini-apps-ui-kit-react";
 
-// Define the payload type for verification
+import WorkAnywhere from "./Work_Anywhere.png";
+
 export type VerifyCommandInput = {
   action: string;
   signal?: string;
-  verification_level?: VerificationLevel; // Default: Orb
+  verification_level?: VerificationLevel; 
 };
 
 const verifyPayload: VerifyCommandInput = {
-  action: "verifyhuman", // Your action defined in your Developer Portal
+  action: "verifyhuman", 
   signal: "",
-  verification_level: VerificationLevel.Orb, // Options: Orb | Device
+  verification_level: VerificationLevel.Orb, 
 };
 
 export const VerifyBlock = () => {
@@ -34,7 +34,6 @@ export const VerifyBlock = () => {
   const handleMiniKitVerify = useCallback(async () => {
     console.log("Starting verification with MiniKit");
 
-    // Check if MiniKit is installed
     if (!MiniKit.isInstalled()) {
       console.warn("MiniKit is not installed.");
       return null;
@@ -43,21 +42,18 @@ export const VerifyBlock = () => {
     console.log("Sending verify command with payload:", verifyPayload);
 
     try {
-      // Call MiniKit's verify command
       const miniKitResult = await MiniKit.commandsAsync.verify(verifyPayload);
       console.log("Raw response from MiniKit.commandsAsync.verify:", miniKitResult);
 
       const { finalPayload } = miniKitResult;
       console.log("Received final payload:", finalPayload);
 
-      // In case of an error, display the error message
       if (finalPayload.status === "error") {
         console.log("Error during verify command. finalPayload:", finalPayload);
         setHandleVerifyResponse(finalPayload);
         return finalPayload;
       }
 
-      // If verification is successful, redirect to the success page
       if (finalPayload.status === "success") {
         console.log("Verification successful (status success), redirecting to the success page");
         setHandleVerifyResponse(finalPayload);
@@ -65,7 +61,6 @@ export const VerifyBlock = () => {
         return finalPayload;
       }
 
-      // In case of an unknown status
       console.log("Unknown status in finalPayload:", finalPayload);
       setHandleVerifyResponse(finalPayload);
       return finalPayload;
@@ -77,16 +72,30 @@ export const VerifyBlock = () => {
 
   return (
     <div>
+      <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+        <img
+          src={WorkAnywhere}
+          alt="Work Anywhere"
+          style={{ width: "100%", maxWidth: "300px", height: "auto" }}
+        />
+      </div>
+
       <div style={{ marginBottom: "1rem" }}>
-        {/* Using the button from the UI Kit */}
         <Button
           variant="primary" // Options: "primary", "secondary", "tertiary", "ghost"
           size="lg"         // Options: "sm", "md", "lg"
           onClick={handleMiniKitVerify}
+          style={{
+            marginLeft: "10%",
+            backgroundColor: "#222", 
+            borderColor: "#444",     
+            color: "#fff"            
+          }}
         >
           Sign in with World ID
         </Button>
       </div>
+
       {/* <pre>{JSON.stringify(handleVerifyResponse, null, 2)}</pre> */}
     </div>
   );

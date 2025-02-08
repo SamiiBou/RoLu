@@ -1,3 +1,4 @@
+// src/components/BottomNav.tsx
 import { Link, useLocation } from "react-router-dom";
 import { FaComments, FaBell, FaVideo, FaUser } from "react-icons/fa";
 
@@ -16,7 +17,6 @@ export const BottomNav = () => {
       <div className="flex justify-around items-center h-20">
         {navItems.map((item) => {
           const Icon = item.icon;
-          // Optional: highlight the active element
           const isActive = location.pathname === item.to;
           return (
             <Link
@@ -26,7 +26,6 @@ export const BottomNav = () => {
                 isActive ? "text-blue-500" : "text-gray-700 hover:text-blue-500"
               }`}
             >
-              {/* You can place the icon above the text */}
               <Icon size={24} />
               <span>{item.label}</span>
             </Link>
