@@ -3,15 +3,24 @@ const axios = require('axios');
 const { openaiApiKey } = require('./config');
 
 /**
+ * Preprocess text by lowercasing and trimming extra whitespace.
+ * (You may add more sophisticated preprocessing as needed.)
+ */
+function preprocessText(text) {
+    return text.toLowerCase().trim();
+  }
+
+/**
  * Get the embedding vector for a given text.
  */
 async function getEmbedding(text, model = "text-embedding-ada-002") {
-  try {
+    const processedText = preprocessText(text);
+    try {
     const response = await axios.post(
       "https://api.openai.com/v1/embeddings",
       {
         model: model,
-        input: text,
+        input: processedText,
       },
       {
         headers: {
@@ -51,28 +60,104 @@ function cosineSimilarity(vec1, vec2) {
  * Return a similarity score (0-100) using embeddings.
  */
 async function matchUsingEmbeddings(freelancerProfile, jobDescription) {
-  const profileEmbedding = await getEmbedding(freelancerProfile);
-  const jobEmbedding = await getEmbedding(jobDescription);
-  const similarity = cosineSimilarity(profileEmbedding, jobEmbedding);
-  return similarity * 100;
-}
+    // Preprocess texts
+    const processedFreelancer = preprocessText(freelancerProfile);
+    const processedJob = preprocessText(jobDescription);
+
+    const profileEmbedding = await getEmbedding(processedFreelancer);
+    const jobEmbedding = await getEmbedding(processedJob);
+    const similarity = cosineSimilarity(profileEmbedding, jobEmbedding);
+    return similarity * 100;
+  }
 
 /**
  * Use ChatCompletion to generate a detailed match analysis.
  */
 async function matchFreelancerToJob(freelancerProfile, jobDescription) {
+    // Preprocess texts
+    const processedFreelancer = preprocessText(freelancerProfile);
+    const processedJob = preprocessText(jobDescription);
+
+    const prompt = `
+  You are an expert job matching assistant. Analyze the freelancer profile and the job description provided below.
+  - Identify the key skills required for the job.
+  - Compare these with the skills and experiences mentioned in the freelancer profile.
+  - If there is a clear role mismatch (for example, the job requires a developer but the profile is for a copywriter), adjust the match score accordingly.
+  - Provide a match score between 0 and 100 (with 100 being a perfect match).
+  - Provide a detailed explanation including:
+    • Strengths: What aspects of the freelancer’s profile match the job requirements.
+    • Gaps: Key areas where the freelancer’s profile does not meet the job requirements.
+    • Overall Summary: A concise conclusion about the overall fit.
+
+  Freelancer Profile:
+  ${processedFreelancer}
+
+  Job Description:
+  ${processedJob}
+
+  Format your answer exactly as follows:
+  Match Score: <score out of 100>
+  Strengths:
+  1. ...
+  Gaps:
+  1. ...
+  Overall Summary: ...
+    `;
+    try {
+      const response = await axios.post(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          model: "gpt-4",
+          messages: [
+            { role: "system", content: "You are a job matching assistant." },
+            { role: "user", content: prompt }
+          ],
+          temperature: 0.2,
+          max_tokens: 250,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${openaiApiKey}`,
+          },
+        }
+      );
+      return response.data.choices[0].message.content;
+    } catch (error) {
+      throw new Error(error.response ? JSON.stringify(error.response.data) : error.message);
+    }
+  }
+
+  module.exports = {
+    matchUsingEmbeddings,
+    matchFreelancerToJob,
+  };
+/**
+ * Use ChatCompletion to generate a detailed match analysis.
+ */
+async function matchFreelancerToJob(freelancerProfile, jobDescription) {
+  // Preprocess texts
+  const processedFreelancer = preprocessText(freelancerProfile);
+  const processedJob = preprocessText(jobDescription);
+
   const prompt = `
-You are an expert job matching assistant. Analyze the freelancer profile and job description below.
-Determine the key skills, compare them, and provide a match score between 0 and 100 (100 is perfect).
-Provide a detailed explanation and list strengths and potential gaps.
+You are an expert job matching assistant. Analyze the freelancer profile and the job description provided below.
+- Identify the key skills required for the job.
+- Compare these with the skills and experiences mentioned in the freelancer profile.
+- If there is a clear role mismatch (for example, the job requires a developer but the profile is for a copywriter), adjust the match score accordingly.
+- Provide a match score between 0 and 100 (with 100 being a perfect match).
+- Provide a detailed explanation including:
+  • Strengths: What aspects of the freelancer’s profile match the job requirements.
+  • Gaps: Key areas where the freelancer’s profile does not meet the job requirements.
+  • Overall Summary: A concise conclusion about the overall fit.
 
 Freelancer Profile:
-${freelancerProfile}
+${processedFreelancer}
 
 Job Description:
-${jobDescription}
+${processedJob}
 
-Format:
+Format your answer exactly as follows:
 Match Score: <score out of 100>
 Strengths:
 1. ...
