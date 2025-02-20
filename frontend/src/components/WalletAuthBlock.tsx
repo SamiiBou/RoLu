@@ -3,14 +3,15 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { MiniKit } from "@worldcoin/minikit-js";
 import { Button } from "@worldcoin/mini-apps-ui-kit-react";
+import type { MiniAppWalletAuthSuccessPayload, MiniAppWalletAuthErrorPayload } from "@worldcoin/minikit-js";
 
 const BACKEND_URL =
   process.env.REACT_APP_BACKEND_URL || "https://d11621933f63.ngrok.app";
 
 export const WalletAuthBlock = () => {
-
-  type WalletAuthResponse = MiniAppWalletAuthSuccessPayload | MiniAppWalletAuthErrorPayload | null;
-  const [walletAuthResponse, setWalletAuthResponse] = useState<any>(null);
+  const [walletAuthResponse, setWalletAuthResponse] = useState<
+    MiniAppWalletAuthSuccessPayload | MiniAppWalletAuthErrorPayload | null
+  >(null);
   const navigate = useNavigate();
 
   const handleWalletAuth = useCallback(async () => {

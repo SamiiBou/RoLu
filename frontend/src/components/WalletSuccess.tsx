@@ -1,5 +1,4 @@
 // src/components/WalletSuccess.tsx
-import React from "react";
 
 export const WalletSuccess = () => {
   return (

@@ -6,6 +6,7 @@ import {
   MiniKit,
   VerificationLevel,
   MiniAppVerifyActionErrorPayload,
+  MiniAppVerifyActionSuccessPayload,
   IVerifyResponse,
 } from "@worldcoin/minikit-js";
 
@@ -27,7 +28,7 @@ const verifyPayload: VerifyCommandInput = {
 
 export const VerifyBlock = () => {
   const [handleVerifyResponse, setHandleVerifyResponse] = useState<
-    MiniAppVerifyActionErrorPayload | IVerifyResponse | null
+    MiniAppVerifyActionErrorPayload | MiniAppVerifyActionSuccessPayload | IVerifyResponse | null
   >(null);
   const navigate = useNavigate();
 
@@ -96,7 +97,7 @@ export const VerifyBlock = () => {
         </Button>
       </div>
 
-      {/* <pre>{JSON.stringify(handleVerifyResponse, null, 2)}</pre> */}
+      <pre>{JSON.stringify(handleVerifyResponse, null, 2)}</pre>
     </div>
   );
 };
