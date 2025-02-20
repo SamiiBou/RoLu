@@ -1,4 +1,3 @@
-import React from 'react';
 import work2 from './work2.png';
 
 export const SuccessPage = () => {
