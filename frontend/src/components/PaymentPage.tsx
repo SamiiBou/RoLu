@@ -1,4 +1,3 @@
-import React from "react";
 import { MiniKit, tokenToDecimals, Tokens, PayCommandInput } from "@worldcoin/minikit-js";
 
 const PaymentPage = () => {
