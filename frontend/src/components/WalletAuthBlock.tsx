@@ -1,17 +1,14 @@
-"use client";
-
-import { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios"; // Make sure to install axios (npm install axios)
+import axios from "axios";
 import { MiniKit } from "@worldcoin/minikit-js";
 import { Button } from "@worldcoin/mini-apps-ui-kit-react";
 
 const BACKEND_URL =
-  process.env.REACT_APP_BACKEND_URL ||
-  "https://t-ynax7jlg.tunn.dev";
+  process.env.REACT_APP_BACKEND_URL || "https://5d66ebe5ec90.ngrok.app";
 
 export const WalletAuthBlock = () => {
-  const [walletAuthResponse, setWalletAuthResponse] = useState(null);
+  const [walletAuthResponse, setWalletAuthResponse] = useState<any>(null);
   const navigate = useNavigate();
 
   const handleWalletAuth = useCallback(async () => {
@@ -23,28 +20,40 @@ export const WalletAuthBlock = () => {
     }
     console.log("MiniKit is installed.");
 
-    // Retrieving the nonce via Axios
-    const nonceUrl = `${BACKEND_URL}/api/nonce`;
-    console.log("Nonce retrieval URL:", nonceUrl);
-
     try {
+      // Récupération du nonce depuis le back-end
+      const nonceUrl = `${BACKEND_URL}/api/nonce`;
+      console.log("Récupération du nonce via :", nonceUrl);
+
+      // Intercepteurs Axios pour tracer la requête et la réponse
+      axios.interceptors.request.use((request) => {
+        console.log("Axios Request:", request);
+        return request;
+      });
+      axios.interceptors.response.use(
+        (response) => {
+          console.log("Axios Response:", response);
+          return response;
+        },
+        (error) => {
+          console.error("Axios Response Error:", error);
+          return Promise.reject(error);
+        }
+      );
+
       const nonceResponse = await axios.get(nonceUrl, {
-      withCredentials: true,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Origin": window.location.origin
-      },
-    });
-    console.log("Axios response (nonce):", nonceResponse);
+        withCredentials: false,
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
 
-      // Axios returns the data directly in .data
-      const nonceData = nonceResponse.data;
-      console.log("Received nonce data:", nonceData);
-      const { nonce } = nonceData;
+      console.log("Réponse Axios (nonce) :", nonceResponse.data);
+      const { nonce } = nonceResponse.data;
+      console.log("Nonce reçu :", nonce);
 
-      // Executing the walletAuth command with MiniKit
+      // Exécution de la commande walletAuth avec MiniKit
       const walletAuthResult = await MiniKit.commandsAsync.walletAuth({
         nonce: nonce,
         requestId: "0",
@@ -53,74 +62,66 @@ export const WalletAuthBlock = () => {
         statement:
           "This is my statement and here is a link https://worldcoin.com/apps",
       });
-      console.log("Complete walletAuth result:", walletAuthResult);
+      console.log("Résultat walletAuth complet :", walletAuthResult);
 
       const { finalPayload } = walletAuthResult;
-      console.log("Final payload received from walletAuth:", finalPayload);
+      console.log("Final payload reçu :", finalPayload);
 
       if (finalPayload.status === "error") {
-        console.error("Error returned by walletAuth:", finalPayload);
+        console.error("Erreur retournée par walletAuth :", finalPayload);
         setWalletAuthResponse(finalPayload);
         return;
       }
 
-      // Sending the SIWE verification via Axios
+      // Vérification de la signature SIWE
       const completeSiweUrl = `${BACKEND_URL}/api/complete-siwe`;
-      console.log("SIWE verification URL:", completeSiweUrl);
+      console.log("Envoi de la vérification SIWE vers :", completeSiweUrl);
 
       const siweResponse = await axios.post(
         completeSiweUrl,
         { payload: finalPayload, nonce },
         {
-          withCredentials: true,
+          withCredentials: false,
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
           },
         }
       );
-      console.log("Axios response (complete-siwe):", siweResponse);
 
+      console.log("Réponse Axios (complete-siwe) :", siweResponse.data);
       const verificationResult = siweResponse.data;
-      console.log(
-        "SIWE verification result received from the backend:",
-        verificationResult
-      );
+      console.log("Résultat de vérification SIWE :", verificationResult);
 
       if (verificationResult.status === "success" && verificationResult.isValid) {
-        console.log("Wallet authentication successful, redirecting to /success");
+        console.log("Authentification wallet réussie, redirection vers /success");
         setWalletAuthResponse(finalPayload);
         navigate("/success");
       } else {
-        console.error("SIWE verification failed:", verificationResult);
+        console.error("Échec de la vérification SIWE :", verificationResult);
         setWalletAuthResponse(verificationResult);
       }
-    } catch (error) {
-      console.error("Detailed error:", {
-        message: error.message,
-        name: error.name,
-        stack: error.stack,
-      });
+    } catch (error: any) {
+      console.error("Erreur lors de la communication :", error);
       setWalletAuthResponse({ error: error.message });
     }
-
-    console.log("=== Ending handleWalletAuth ===");
+    console.log("=== Fin de handleWalletAuth ===");
   }, [navigate]);
 
   return (
     <div>
-      <div style={{ marginBottom: "1rem" }}>
-        <Button variant="primary" size="lg" onClick={handleWalletAuth}
+      <Button
+        variant="primary"
+        size="lg"
+        onClick={handleWalletAuth}
         style={{
-            // marginLeft: "7%",
-            backgroundColor: "#222", 
-            borderColor: "#444",     
-            color: "#fff"            
-          }}
-        >
-          Connect with Ethereum Wallet
-        </Button>
-      </div>
+          backgroundColor: "#222",
+          borderColor: "#444",
+          color: "#fff",
+        }}
+      >
+        Connect with Ethereum Wallet
+      </Button>
       {walletAuthResponse && (
         <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
           {JSON.stringify(walletAuthResponse, null, 2)}
