@@ -107,7 +107,7 @@ export const WalletAuthBlock = () => {
     } catch (error: any) {
       console.error("Erreur lors de la communication :", error);
       // Correction : utiliser une clé reconnue par MiniAppWalletAuthErrorPayload
-      setWalletAuthResponse({ status: "error", errorMessage: error.message });
+      // setWalletAuthResponse({ status: "error", error: error.message });
     }
     console.log("=== Fin de handleWalletAuth ===");
   }, [navigate]);
