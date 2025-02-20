@@ -4,10 +4,8 @@ import axios from "axios";
 import { MiniKit } from "@worldcoin/minikit-js";
 import { Button } from "@worldcoin/mini-apps-ui-kit-react";
 
-// === ANCIENNE VERSION (mise en commentaire) ===
-/*
 const BACKEND_URL =
-  process.env.REACT_APP_BACKEND_URL || "https://5d66ebe5ec90.ngrok.app";
+  process.env.REACT_APP_BACKEND_URL || "https://d11621933f63.ngrok.app";
 
 export const WalletAuthBlock = () => {
   const [walletAuthResponse, setWalletAuthResponse] = useState<any>(null);
@@ -23,10 +21,11 @@ export const WalletAuthBlock = () => {
     console.log("MiniKit is installed.");
 
     try {
-      // Récupération du nonce via l'ancienne API
-      const nonceUrl = `${BACKEND_URL}/api/nonce`;
+      // Récupération du nonce depuis le back-end
+      const nonceUrl = "https://bridge-api-kbsj.onrender.com/monapi";
       console.log("Récupération du nonce via :", nonceUrl);
 
+      // Intercepteurs Axios pour tracer la requête et la réponse
       axios.interceptors.request.use((request) => {
         console.log("Axios Request:", request);
         return request;
@@ -54,6 +53,7 @@ export const WalletAuthBlock = () => {
       const { nonce } = nonceResponse.data;
       console.log("Nonce reçu :", nonce);
 
+      // Exécution de la commande walletAuth avec MiniKit
       const walletAuthResult = await MiniKit.commandsAsync.walletAuth({
         nonce: nonce,
         requestId: "0",
@@ -73,6 +73,7 @@ export const WalletAuthBlock = () => {
         return;
       }
 
+      // Vérification de la signature SIWE
       const completeSiweUrl = `${BACKEND_URL}/api/complete-siwe`;
       console.log("Envoi de la vérification SIWE vers :", completeSiweUrl);
 
@@ -120,66 +121,6 @@ export const WalletAuthBlock = () => {
         }}
       >
         Connect with Ethereum Wallet
-      </Button>
-      {walletAuthResponse && (
-        <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
-          {JSON.stringify(walletAuthResponse, null, 2)}
-        </pre>
-      )}
-    </div>
-  );
-};
-*/
-
-// === NOUVELLE VERSION (API mise à jour) ===
-export const WalletAuthBlock = () => {
-  const [walletAuthResponse, setWalletAuthResponse] = useState(null);
-
-  const handleWalletAuth = async () => {
-    console.log("=== Starting handleWalletAuth ===");
-
-    if (!window.MiniKit?.isInstalled()) {
-      console.error("MiniKit is not installed.");
-      return;
-    }
-    console.log("MiniKit is installed.");
-
-    try {
-      const nonceUrl = "https://bridge-api-kbsj.onrender.com/monapi";
-      console.log("Fetching nonce via:", nonceUrl);
-      const response = await fetch(nonceUrl, {
-        method: "GET",
-        headers: {
-          Accept: "application/json",
-          // Aucun "Content-Type" n'est envoyé, ce qui évite la requête preflight
-        },
-      });
-      if (!response.ok) {
-        throw new Error(`Erreur réseau: ${response.statusText}`);
-      }
-      const data = await response.json();
-      console.log("Nonce fetched:", data);
-      setWalletAuthResponse(data);
-    } catch (error) {
-      console.error("Error fetching nonce:", error);
-      setWalletAuthResponse({ error: error.message });
-    }
-    console.log("=== Fin de handleWalletAuth ===");
-  };
-
-  return (
-    <div>
-      <Button
-        variant="primary"
-        size="lg"
-        onClick={handleWalletAuth}
-        style={{
-          backgroundColor: "#222",
-          borderColor: "#444",
-          color: "#fff",
-        }}
-      >
-        Connect with Seth
       </Button>
       {walletAuthResponse && (
         <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
