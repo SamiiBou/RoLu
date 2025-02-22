@@ -1,4 +1,5 @@
-import React, { StrictMode } from "react";
+// src/index.tsx
+import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
@@ -7,7 +8,7 @@ import MiniKitProvider from "./minikit-provider";
 import { ErudaProvider } from "./components/Eruda";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+  <React.StrictMode>
     <ErudaProvider>
       <MiniKitProvider>
         <BrowserRouter>
@@ -15,5 +16,5 @@ createRoot(document.getElementById("root")!).render(
         </BrowserRouter>
       </MiniKitProvider>
     </ErudaProvider>
-  </StrictMode>
+  </React.StrictMode>
 );
