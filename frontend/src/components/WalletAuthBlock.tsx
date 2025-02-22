@@ -1,17 +1,14 @@
-import { useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { MiniKit } from "@worldcoin/minikit-js";
 import { Button } from "@worldcoin/mini-apps-ui-kit-react";
-import type { MiniAppWalletAuthSuccessPayload, MiniAppWalletAuthErrorPayload } from "@worldcoin/minikit-js";
 
 const BACKEND_URL =
-  process.env.REACT_APP_BACKEND_URL || "https://d11621933f63.ngrok.app";
+  process.env.REACT_APP_BACKEND_URL || "https://83a6a22b1fda.ngrok.app";
 
 export const WalletAuthBlock = () => {
-  const [walletAuthResponse, setWalletAuthResponse] = useState<
-    MiniAppWalletAuthSuccessPayload | MiniAppWalletAuthErrorPayload | null
-  >(null);
+  const [walletAuthResponse, setWalletAuthResponse] = useState(null);
   const navigate = useNavigate();
 
   const handleWalletAuth = useCallback(async () => {
@@ -24,9 +21,9 @@ export const WalletAuthBlock = () => {
     console.log("MiniKit is installed.");
 
     try {
-      // Récupération du nonce depuis le back-end
-      const nonceUrl = "https://bridge-api-kbsj.onrender.com/monapi";
-      console.log("Récupération du nonce via :", nonceUrl);
+      // Récupération du nonce et du nonceId depuis le back-end
+      const nonceUrl = `${BACKEND_URL}/api/nonce`;
+      console.log("Fetching nonce from:", nonceUrl);
 
       // Intercepteurs Axios pour tracer la requête et la réponse
       axios.interceptors.request.use((request) => {
@@ -45,16 +42,17 @@ export const WalletAuthBlock = () => {
       );
 
       const nonceResponse = await axios.get(nonceUrl, {
-        withCredentials: false,
+        withCredentials: true,
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
       });
 
-      console.log("Réponse Axios (nonce) :", nonceResponse.data);
-      const { nonce } = nonceResponse.data;
-      console.log("Nonce reçu :", nonce);
+      console.log("Axios response (nonce):", nonceResponse.data);
+      const { nonce, nonceId } = nonceResponse.data;
+      console.log("Nonce received:", nonce);
+      console.log("NonceId received:", nonceId);
 
       // Exécution de la commande walletAuth avec MiniKit
       const walletAuthResult = await MiniKit.commandsAsync.walletAuth({
@@ -65,26 +63,26 @@ export const WalletAuthBlock = () => {
         statement:
           "This is my statement and here is a link https://worldcoin.com/apps",
       });
-      console.log("Résultat walletAuth complet :", walletAuthResult);
+      console.log("Complete walletAuth result:", walletAuthResult);
 
       const { finalPayload } = walletAuthResult;
-      console.log("Final payload reçu :", finalPayload);
+      console.log("Final payload received:", finalPayload);
 
       if (finalPayload.status === "error") {
-        console.error("Erreur retournée par walletAuth :", finalPayload);
+        console.error("Error returned by walletAuth:", finalPayload);
         setWalletAuthResponse(finalPayload);
         return;
       }
 
       // Vérification de la signature SIWE
       const completeSiweUrl = `${BACKEND_URL}/api/complete-siwe`;
-      console.log("Envoi de la vérification SIWE vers :", completeSiweUrl);
+      console.log("Sending SIWE verification to:", completeSiweUrl);
 
       const siweResponse = await axios.post(
         completeSiweUrl,
-        { payload: finalPayload, nonce },
+        { payload: finalPayload, nonce, nonceId },
         {
-          withCredentials: false,
+          withCredentials: true,
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
@@ -92,24 +90,23 @@ export const WalletAuthBlock = () => {
         }
       );
 
-      console.log("Réponse Axios (complete-siwe) :", siweResponse.data);
+      console.log("Axios response (complete-siwe):", siweResponse.data);
       const verificationResult = siweResponse.data;
-      console.log("Résultat de vérification SIWE :", verificationResult);
+      console.log("SIWE verification result:", verificationResult);
 
       if (verificationResult.status === "success" && verificationResult.isValid) {
-        console.log("Authentification wallet réussie, redirection vers /success");
+        console.log("Wallet authentication successful, redirecting to /success");
         setWalletAuthResponse(finalPayload);
         navigate("/success");
       } else {
-        console.error("Échec de la vérification SIWE :", verificationResult);
+        console.error("SIWE verification failed:", verificationResult);
         setWalletAuthResponse(verificationResult);
       }
-    } catch (error: any) {
-      console.error("Erreur lors de la communication :", error);
-      // Correction : utiliser une clé reconnue par MiniAppWalletAuthErrorPayload
-      // setWalletAuthResponse({ status: "error", error: error.message });
+    } catch (error) {
+      console.error("Error during communication:", error);
+      setWalletAuthResponse({ error: error.message });
     }
-    console.log("=== Fin de handleWalletAuth ===");
+    console.log("=== End of handleWalletAuth ===");
   }, [navigate]);
 
   return (
