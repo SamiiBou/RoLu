@@ -73,7 +73,7 @@ export const VerifyBlock = () => {
 
   return (
     <div>
-      <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+      <div style={{ textAlign: "center", marginBottom: "1rem",marginLeft: "-2%" }}>
         <img
           src={WorkAnywhere}
           alt="Work Anywhere"
@@ -81,7 +81,7 @@ export const VerifyBlock = () => {
         />
       </div>
 
-      <div style={{ marginBottom: "1rem" }}>
+      {/* <div style={{ marginBottom: "1rem" }}>
         <Button
           variant="primary" // Options: "primary", "secondary", "tertiary", "ghost"
           size="lg"         // Options: "sm", "md", "lg"
@@ -95,9 +95,9 @@ export const VerifyBlock = () => {
         >
           Sign in with World ID
         </Button>
-      </div>
+      </div> */}
 
-      <pre>{JSON.stringify(handleVerifyResponse, null, 2)}</pre>
+      {/* <pre>{JSON.stringify(handleVerifyResponse, null, 2)}</pre> */}
     </div>
   );
 };

@@ -1,33 +1,26 @@
-// src/App.tsx
 import { Routes, Route } from "react-router-dom";
-import { VerifyBlock } from "./components/Verify";
-import { WalletAuthBlock } from "./components/WalletAuthBlock";
+import HomePage from "./components/HomePage";
 import { SuccessPage } from "./components/SuccessPage";
 import PaymentPage from "./components/PaymentPage";
 import { BottomNav } from "./components/BottomNav";
+import { JobDetailsPage } from "./components/Job/JobDetailsPage";
+import { CreateJobPage } from "./components/Job/CreateJobPage";
 import "@worldcoin/mini-apps-ui-kit-react/styles.css";
 
 export default function App() {
   return (
-    <div className="relative min-h-screen">
-      <main className="flex min-h-screen flex-col items-center justify-center p-24 gap-y-3">
+    <div>
+      <main>
         <Routes>
-          <Route
-            path="/"
-            element={
-              <>
-                {/* Affichage des deux options de connexion sur la page d'accueil */}
-                <VerifyBlock />
-                <WalletAuthBlock />
-              </>
-            }
-          />
+          <Route path="/" element={<HomePage />} />
           <Route path="/success" element={<SuccessPage />} />
+          <Route path="/job/:id" element={<JobDetailsPage />} />
+          <Route path="/create-job" element={<CreateJobPage />} />
           <Route path="/payment" element={<PaymentPage />} />
-          <Route path="/chat" element={<div>Page de Chat</div>} />
-          <Route path="/notifications" element={<div>Page de Notifications</div>} />
-          <Route path="/watch" element={<div>Page de Watch</div>} />
-          <Route path="/profile" element={<div>Page de Profil</div>} />
+          <Route path="/chat" element={<div>Chat Page</div>} />
+          <Route path="/notifications" element={<div>Notifications Page</div>} />
+          <Route path="/watch" element={<div>Watch Page</div>} />
+          <Route path="/profile" element={<div>Profile Page</div>} />
         </Routes>
       </main>
       <BottomNav />
