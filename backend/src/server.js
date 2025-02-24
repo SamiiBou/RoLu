@@ -1,12 +1,27 @@
+// backend/src/server.js
 import express from "express";
 import cors from "cors";
 import { randomUUID } from "crypto";
 import bodyParser from "body-parser";
 import { verifySiweMessage } from "@worldcoin/minikit-js";
 
+//import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
+import { connectDB } from "./db.js";
+import { Profile } from "./models/Profile.js";
+import { verifyWorldPayload } from "./middleware/worldVerify.js";
+
 const app = express();
 const port = process.env.PORT || 3001;
 console.log("=== Initializing back-end server ===");
+
+import dotenv from "dotenv";
+dotenv.config();
+
+// Use cookie parser before your routes
+app.use(cookieParser());
+// Connect to MongoDB
+connectDB();
 
 // In-memory storage for nonces associated with an identifier
 const nonceStore = {};
@@ -26,7 +41,8 @@ const allowedOrigins = [
   "https://33433194a3de.ngrok.app",
   "https://4c59b6020b42.ngrok.app",
   "https://d845-2001-861-3886-8100-bda3-b75e-a8cf-483e.ngrok-free.app",
-  "https://d3fe-2001-861-3886-8100-bda3-b75e-a8cf-483e.ngrok-free.app"
+  "https://d3fe-2001-861-3886-8100-bda3-b75e-a8cf-483e.ngrok-free.app",
+  "https://43d6-2001-861-3886-8100-f405-cace-5273-602f.ngrok-free.app"
 ];
 console.log("Allowed origins for CORS:", allowedOrigins);
 
@@ -91,7 +107,7 @@ app.post("/api/complete-siwe", async (req, res) => {
   const storedNonce = nonceStore[nonceId];
   console.log("Stored nonce for nonceId:", storedNonce);
 
-  if (!storedNonce) {
+  if (!storedNonce || nonce !== storedNonce) {
     console.error("Error: Invalid or expired nonceId.");
     res.json({
       status: "error",
@@ -100,28 +116,38 @@ app.post("/api/complete-siwe", async (req, res) => {
     });
     return;
   }
-
-  if (nonce !== storedNonce) {
-    console.error("Error: Invalid nonce. Received:", nonce, "| Stored nonce:", storedNonce);
-    res.json({
-      status: "error",
-      isValid: false,
-      message: "Invalid nonce",
-    });
-    return;
-  }
-
   try {
-    console.log("Calling verifySiweMessage with payload and nonce...");
-    const validMessage = await verifySiweMessage(payload, nonce);
-    console.log("Result of verifySiweMessage:", validMessage);
-    // Optionally: delete the nonce to prevent reuse
-    delete nonceStore[nonceId];
-    res.json({
-      status: "success",
-      isValid: validMessage.isValid,
-    });
-    console.log("Response sent for /api/complete-siwe successfully");
+      console.log("Calling verifySiweMessage with payload and nonce...");
+      const validMessage = await verifySiweMessage(payload, nonce);
+      console.log("Result of verifySiweMessage:", validMessage);
+      if (validMessage.isValid) {
+        let user = await Profile.findOne({ ethereumAddress: payload.address });
+        if (!user) {
+          user = await Profile.create({
+            ethereumAddress: payload.address,
+            username: payload.address,
+            fullName: "New User",
+            email: "",
+            profilePic: "",
+          });
+        }
+
+        // Generate a JWT token
+        const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
+        // Set the token in a cookie
+        res.cookie("worldVerificationToken", token, {
+          httpOnly: true, // Prevents JavaScript access to the cookie
+          secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+          sameSite: "strict", // Prevents CSRF attacks
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days expiration
+        });
+
+        res.json({
+          status: "success",
+          isValid: true,
+        });
+
   } catch (error) {
     console.error("Error during SIWE verification:", error);
     res.json({
@@ -165,6 +191,28 @@ app.post("/api/confirm-payment", (req, res) => {
     paymentStore[reference].status = "failed";
     console.error("Payment failed for reference:", reference);
     return res.json({ success: false, message: "Payment failed" });
+  }
+});
+
+// Production-ready Profile Endpoint using World Verification
+app.get("/api/profile", verifyWorldPayload, async (req, res) => {
+  console.log("=== GET /api/profile request for user:", req.user._id);
+  try {
+    const profile = await Profile.findById(req.user._id).populate({
+      path: "transactions",
+      populate: {
+        path: "sender receiver",
+        select: "fullName username profilePic", // Only include necessary fields
+      },
+    });
+    if (!profile) {
+      return res.status(404).json({ error: "Profile not found" });
+    }
+    res.json({ profile });
+    console.log("Profile response sent.");
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

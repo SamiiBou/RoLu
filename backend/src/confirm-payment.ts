@@ -1,3 +1,5 @@
+//backend/src/confirm-payment.ts
+
 import fetch from "node-fetch";
 import { MiniAppPaymentSuccessPayload } from "@worldcoin/minikit-js";
 import { RequestHandler } from "express";

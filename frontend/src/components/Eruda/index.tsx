@@ -1,3 +1,5 @@
+//frontend/src/components/Eruda/index.tsx
+
 import { ReactNode, Suspense, lazy } from "react";
 
 const Eruda = lazy(() =>

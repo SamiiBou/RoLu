@@ -1,3 +1,4 @@
+// frontend/src/components/WalletAuthBlock
 import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -5,7 +6,7 @@ import { MiniKit } from "@worldcoin/minikit-js";
 import { Button } from "@worldcoin/mini-apps-ui-kit-react";
 
 const BACKEND_URL =
-  process.env.REACT_APP_BACKEND_URL || "https://83a6a22b1fda.ngrok.app";
+  process.env.REACT_APP_BACKEND_URL || "https://2639-2001-861-3886-8100-f405-cace-5273-602f.ngrok-free.app" ;
 
 export const WalletAuthBlock = () => {
   const [walletAuthResponse, setWalletAuthResponse] = useState(null);
@@ -94,8 +95,12 @@ export const WalletAuthBlock = () => {
       const verificationResult = siweResponse.data;
       console.log("SIWE verification result:", verificationResult);
 
-      if (verificationResult.status === "success" && verificationResult.isValid) {
+      if (verificationResult.status === "success" && verificationResult.isValid && verificationResult.token) {
         console.log("Wallet authentication successful, redirecting to /success");
+        // Save the token
+        localStorage.setItem("worldVerificationToken", verificationResult.token);
+        console.log("Token stored:", localStorage.getItem("worldVerificationToken"));
+
         setWalletAuthResponse(finalPayload);
         navigate("/success");
       } else {

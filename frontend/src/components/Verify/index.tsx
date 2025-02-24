@@ -1,3 +1,4 @@
+//frontend/src/components/Verify/index.tsx
 "use client";
 
 import { useState, useCallback } from "react";
@@ -17,13 +18,13 @@ import WorkAnywhere from "./Work_Anywhere.png";
 export type VerifyCommandInput = {
   action: string;
   signal?: string;
-  verification_level?: VerificationLevel; 
+  verification_level?: VerificationLevel;
 };
 
 const verifyPayload: VerifyCommandInput = {
-  action: "verifyhuman", 
+  action: "verifyhuman",
   signal: "",
-  verification_level: VerificationLevel.Orb, 
+  verification_level: VerificationLevel.Orb,
 };
 
 export const VerifyBlock = () => {
@@ -88,9 +89,9 @@ export const VerifyBlock = () => {
           onClick={handleMiniKitVerify}
           style={{
             marginLeft: "10%",
-            backgroundColor: "#222", 
-            borderColor: "#444",     
-            color: "#fff"            
+            backgroundColor: "#222",
+            borderColor: "#444",
+            color: "#fff"
           }}
         >
           Sign in with World ID

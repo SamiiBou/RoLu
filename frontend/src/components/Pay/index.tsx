@@ -1,3 +1,5 @@
+//frontend/src/components/Pay/index.tsx
+
 import {
   MiniKit,
   tokenToDecimals,

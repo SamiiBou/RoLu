@@ -1,3 +1,5 @@
+//frontend/src/components/Eruda/eruda-provider.tsx
+
 "use client";
 
 import eruda from "eruda";

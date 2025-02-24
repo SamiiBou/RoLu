@@ -74,7 +74,7 @@ const ChatComponent = () => {
 
   return (
     <div className="chat-container">
-      <h2>Chat with Our RoLu Assistant</h2>
+      <h2>Chat with Our Work Anywhere Assistant</h2>
       <div className="conversation">
         {displayedConversation.length === 0 ? (
           <div className="placeholder">Your conversation will appear here.</div>

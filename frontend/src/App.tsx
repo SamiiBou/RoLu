@@ -5,6 +5,9 @@ import { WalletAuthBlock } from "./components/WalletAuthBlock";
 import { SuccessPage } from "./components/SuccessPage";
 import PaymentPage from "./components/PaymentPage";
 import { BottomNav } from "./components/BottomNav";
+
+import ProfilePage from "./pages/profile";
+
 import "@worldcoin/mini-apps-ui-kit-react/styles.css";
 
 export default function App() {
@@ -27,7 +30,7 @@ export default function App() {
           <Route path="/chat" element={<div>Page de Chat</div>} />
           <Route path="/notifications" element={<div>Page de Notifications</div>} />
           <Route path="/watch" element={<div>Page de Watch</div>} />
-          <Route path="/profile" element={<div>Page de Profil</div>} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </main>
       <BottomNav />
