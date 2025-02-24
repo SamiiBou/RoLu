@@ -39,11 +39,11 @@ export const verifyHandler: RequestHandler = async (req, res) => {
   if (verifyRes.success) {
     // Assume payload contains an Ethereum address
     // Look up the user profile; if it doesn't exist, create it
-    let user = await Profile.findOne({ ethereumAddress: payload.address });
+    let user = await Profile.findOne({ ethereumAddress: payload.siwe.address });
     if (!user) {
       user = await Profile.create({
-        ethereumAddress: payload.address,
-        username: payload.address, // or derive a username
+        ethereumAddress: payload.siwe.address,
+        username: payload.siwe.address, // or derive a username
         fullName: "New User", // or use data from payload if available
         email: "", // Fill in as needed
         profilePic: "", // Fill in if available

@@ -4,7 +4,8 @@ import { verifyHandler } from "./src/verify";
 import { initiatePaymentHandler } from "./src/initiate-payment";
 import { confirmPaymentHandler } from "./src/confirm-payment";
 import cors from "cors";
-
+import dotenv from "dotenv";
+dotenv.config();
 const app = express();
 
 // trust the proxy to allow HTTPS protocol to be detected
@@ -31,7 +32,7 @@ app.post("/verify", verifyHandler);
 app.post("/initiate-payment", initiatePaymentHandler);
 app.post("/confirm-payment", confirmPaymentHandler);
 
-const port = 3000; // use env var
+const port = 3001; // use env var
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

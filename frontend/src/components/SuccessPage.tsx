@@ -1,3 +1,4 @@
+// frontend/src/components/SuccessPage.tsx
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -29,7 +30,8 @@ export const SuccessPage = () => {
   const [selectedLocation, setSelectedLocation] = useState("Not selected");
   const navigate = useNavigate();
 
-  const API_BASE_URL = 'https://8462f73dd85b.ngrok.app'; // Base URL of the backend
+  //const API_BASE_URL = 'https://8462f73dd85b.ngrok.app'; // Base URL of the backend
+  const API_BASE_URL = 'https://cd5d-2001-861-3886-8100-9e5-b1b8-af70-a68e.ngrok-free.app'; // Base URL of the backend
 
   // Sample locations for the location dialog
   const locations = ["Paris", "Lyon", "Marseille", "Bordeaux", "Toulouse"];

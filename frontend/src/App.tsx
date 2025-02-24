@@ -23,10 +23,6 @@ export default function App() {
           <Route path="/chat" element={<div>Chat Page</div>} />
           <Route path="/notifications" element={<div>Notifications Page</div>} />
           <Route path="/watch" element={<div>Watch Page</div>} />
-          <Route path="/profile" element={<div>Profile Page</div>} />
-          <Route path="/chat" element={<div>Page de Chat</div>} />
-          <Route path="/notifications" element={<div>Page de Notifications</div>} />
-          <Route path="/watch" element={<div>Page de Watch</div>} />
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </main>

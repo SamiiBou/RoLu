@@ -20,6 +20,7 @@ import { verifyWorldPayload } from "./middleware/worldVerify.js";
 
 const app = express();
 const port = process.env.PORT || 3001;
+console.log("PORT env variable:", process.env.PORT);
 
 // Configuration de multer pour les uploads de fichiers
 const storage = multer.diskStorage({
@@ -32,9 +33,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 console.log("=== Initializing back-end server ===");
-
-import dotenv from "dotenv";
-dotenv.config();
 
 // Use cookie parser before your routes
 app.use(cookieParser());
@@ -64,8 +62,11 @@ const allowedOrigins = [
   "https://461216866e90.ngrok.app",
   "https://022d9a9411c8.ngrok.app",
   "https://d845-2001-861-3886-8100-bda3-b75e-a8cf-483e.ngrok-free.app",
-  "https://d3fe-2001-861-3886-8100-bda3-b75e-a8cf-483e.ngrok-free.app",,
-  "https://43d6-2001-861-3886-8100-f405-cace-5273-602f.ngrok-free.app"
+  "https://d3fe-2001-861-3886-8100-bda3-b75e-a8cf-483e.ngrok-free.app",
+  "https://43d6-2001-861-3886-8100-f405-cace-5273-602f.ngrok-free.app",
+  "https://cd5d-2001-861-3886-8100-9e5-b1b8-af70-a68e.ngrok-free.app",
+  "https://2aa3-2001-861-3886-8100-9e5-b1b8-af70-a68e.ngrok-free.app"
+
 ];
 console.log("Allowed origins for CORS:", allowedOrigins);
 
@@ -86,6 +87,7 @@ app.use(bodyParser.json());
 // Global logging middleware
 app.use((req, res, next) => {
   console.log(`\n[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log(`Received request: ${req.method} ${req.url}`);
   console.log("Received Headers:", req.headers);
   console.log("Received Body:", req.body);
   next();
@@ -98,7 +100,7 @@ app.use((err, req, res, next) => {
 });
 
 // SIWE nonce and payment endpoints
-const nonceStore = {};
+//const nonceStore = {};
 app.get("/api/nonce", (req, res) => {
   console.log("=== Received GET /api/nonce request ===");
   const nonce = randomUUID().replace(/-/g, "");
@@ -112,18 +114,11 @@ app.get("/api/nonce", (req, res) => {
 app.post("/api/complete-siwe", async (req, res) => {
   const { payload, nonce, nonceId } = req.body;
   const storedNonce = nonceStore[nonceId];
-  if (!storedNonce) {
+  if (!storedNonce || nonce !== storedNonce) {
     return res.json({
       status: "error",
       isValid: false,
       message: "Invalid or expired nonceId",
-    });
-  }
-  if (nonce !== storedNonce) {
-    return res.json({
-      status: "error",
-      isValid: false,
-      message: "Invalid nonce",
     });
   }
   try {
@@ -157,7 +152,13 @@ app.post("/api/complete-siwe", async (req, res) => {
           status: "success",
           isValid: true,
         });
-
+      } else {
+        res.json({
+          status: "error",
+          isValid: false,
+          message: "Verification failed",
+        });
+      }
   } catch (error) {
     res.json({
       status: "error",
@@ -167,7 +168,7 @@ app.post("/api/complete-siwe", async (req, res) => {
   }
 });
 
-const paymentStore = {};
+//const paymentStore = {};
 app.post("/api/initiate-payment", (req, res) => {
   const paymentId = "0x" + randomUUID().replace(/-/g, "");
   paymentStore[paymentId] = { status: "pending" };

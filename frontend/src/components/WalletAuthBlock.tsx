@@ -6,10 +6,12 @@ import { MiniKit } from "@worldcoin/minikit-js";
 import { Button } from "@worldcoin/mini-apps-ui-kit-react";
 
 const BACKEND_URL =
-  process.env.REACT_APP_BACKEND_URL || "https://2639-2001-861-3886-8100-f405-cace-5273-602f.ngrok-free.app" ;
+  process.env.REACT_APP_BACKEND_URL || "https://cd5d-2001-861-3886-8100-9e5-b1b8-af70-a68e.ngrok-free.app" ;
 
 export const WalletAuthBlock = () => {
-  const [walletAuthResponse, setWalletAuthResponse] = useState(null);
+  const [walletAuthResponse, setWalletAuthResponse] = useState<any>(null);
+  //const [walletAuthResponse, setWalletAuthResponse] = useState(null);
+
   const navigate = useNavigate();
 
   const handleWalletAuth = useCallback(async () => {
@@ -23,7 +25,8 @@ export const WalletAuthBlock = () => {
 
     try {
       // Get nonce and nonceId from the backend
-      const nonceUrl = `${BACKEND_URL}/api/nonce`;
+      //const nonceUrl = `${BACKEND_URL}/api/nonce`;
+      const nonceUrl = "/api/nonce";
       console.log("Fetching nonce from:", nonceUrl);
 
       // Axios interceptors to log request and response
@@ -42,7 +45,8 @@ export const WalletAuthBlock = () => {
         }
       );
 
-      const nonceResponse = await axios.get(nonceUrl, {
+      //const nonceResponse = await axios.get(nonceUrl, {
+      const nonceResponse = await axios.get("/api/nonce", {
         withCredentials: true,
         headers: {
           Accept: "application/json",
@@ -76,7 +80,8 @@ export const WalletAuthBlock = () => {
       }
 
       // Verify SIWE signature
-      const completeSiweUrl = `${BACKEND_URL}/api/complete-siwe`;
+      //const completeSiweUrl = `${BACKEND_URL}/api/complete-siwe`;
+      const completeSiweUrl = "/api/complete-siwe";
       console.log("Sending SIWE verification to:", completeSiweUrl);
 
       const siweResponse = await axios.post(
@@ -95,11 +100,8 @@ export const WalletAuthBlock = () => {
       const verificationResult = siweResponse.data;
       console.log("SIWE verification result:", verificationResult);
 
-      if (verificationResult.status === "success" && verificationResult.isValid && verificationResult.token) {
+      if (verificationResult.status === "success" && verificationResult.isValid) {
         console.log("Wallet authentication successful, redirecting to /success");
-        // Save the token
-        localStorage.setItem("worldVerificationToken", verificationResult.token);
-        console.log("Token stored:", localStorage.getItem("worldVerificationToken"));
 
         setWalletAuthResponse(finalPayload);
         navigate("/success");
