@@ -22,11 +22,11 @@ export const WalletAuthBlock = () => {
     console.log("MiniKit is installed.");
 
     try {
-      // Récupération du nonce et du nonceId depuis le back-end
+      // Get nonce and nonceId from the backend
       const nonceUrl = `${BACKEND_URL}/api/nonce`;
       console.log("Fetching nonce from:", nonceUrl);
 
-      // Intercepteurs Axios pour tracer la requête et la réponse
+      // Axios interceptors to log request and response
       axios.interceptors.request.use((request) => {
         console.log("Axios Request:", request);
         return request;
@@ -55,7 +55,7 @@ export const WalletAuthBlock = () => {
       console.log("Nonce received:", nonce);
       console.log("NonceId received:", nonceId);
 
-      // Exécution de la commande walletAuth avec MiniKit
+      // Execute walletAuth command with MiniKit
       const walletAuthResult = await MiniKit.commandsAsync.walletAuth({
         nonce: nonce,
         requestId: "0",
@@ -75,7 +75,7 @@ export const WalletAuthBlock = () => {
         return;
       }
 
-      // Vérification de la signature SIWE
+      // Verify SIWE signature
       const completeSiweUrl = `${BACKEND_URL}/api/complete-siwe`;
       console.log("Sending SIWE verification to:", completeSiweUrl);
 
@@ -115,7 +115,16 @@ export const WalletAuthBlock = () => {
   }, [navigate]);
 
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
+        padding: "20px"
+      }}
+    >
       <Button
         variant="primary"
         size="lg"
@@ -126,13 +135,19 @@ export const WalletAuthBlock = () => {
           color: "#fff",
         }}
       >
-        Connect with Ethereum Wallet
+        Connect with Wallet
       </Button>
-      {walletAuthResponse && (
-        <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+      {/* {walletAuthResponse && (
+        <pre
+          style={{
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+            marginTop: "20px"
+          }}
+        >
           {JSON.stringify(walletAuthResponse, null, 2)}
         </pre>
-      )}
+      )} */}
     </div>
   );
 };

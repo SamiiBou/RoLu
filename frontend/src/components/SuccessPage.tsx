@@ -1,115 +1,198 @@
-import React, { useState } from "react";
-import work2 from "./work2.png";
-import { MiniKit, tokenToDecimals, Tokens } from "@worldcoin/minikit-js";
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  TextField,
+  Typography,
+  Card,
+  CardContent,
+  CardActions,
+  CardMedia,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  IconButton,
+} from "@mui/material";
+import { Button } from "@worldcoin/mini-apps-ui-kit-react";
+import { LocationOn } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
 
+// SuccessPage component to display the list of jobs
 export const SuccessPage = () => {
-  const [payAddress, setPayAddress] = useState("");
-  const [amount, setAmount] = useState("");
-  const [paymentStatus, setPaymentStatus] = useState("");
+  const [jobs, setJobs] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState("Not selected");
+  const navigate = useNavigate();
 
-  const handlePayment = async () => {
-    console.log("Starting payment process");
-    console.log("Recipient address:", payAddress);
-    console.log("Amount entered:", amount);
+  const API_BASE_URL = 'https://8462f73dd85b.ngrok.app'; // Base URL of the backend
 
-    if (!MiniKit.isInstalled()) {
-      console.error("MiniKit is not installed.");
-      return;
-    }
-    try {
-      console.log("Initiating payment on backend...");
-      const initRes = await fetch("https://83a6a22b1fda.ngrok.app/api/initiate-payment", { method: "POST" });
-      const initData = await initRes.json();
-      console.log("Response from initiate-payment:", initData);
-      const { id } = initData;
+  // Sample locations for the location dialog
+  const locations = ["Paris", "Lyon", "Marseille", "Bordeaux", "Toulouse"];
 
-      const tokenAmount = tokenToDecimals(parseFloat(amount), Tokens.WLD).toString();
-      console.log("Converted token amount:", tokenAmount);
-      const payload = {
-        reference: id,
-        to: payAddress,
-        tokens: [
-          {
-            symbol: Tokens.WLD,
-            token_amount: tokenAmount,
-          },
-        ],
-        description: "Payment from success page",
-      };
-      console.log("Payment payload:", payload);
-
-      const payResponse = await MiniKit.commandsAsync.pay(payload);
-      console.log("Response from MiniKit.commandsAsync.pay:", payResponse);
-      const { finalPayload } = payResponse;
-      console.log("Final payload from payment command:", finalPayload);
-
-      if (finalPayload.status === "success") {
-        console.log("Payment successful, confirming payment on backend...");
-        const confirmRes = await fetch("https://83a6a22b1fda.ngrok.app/api/confirm-payment", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(finalPayload),
-        });
-        const confirmResult = await confirmRes.json();
-        console.log("Response from confirm-payment:", confirmResult);
-        if (confirmResult.success) {
-          setPaymentStatus("Payment successful!");
-        } else {
-          setPaymentStatus("Payment confirmation failed.");
+  // Fetch jobs from the backend API on component mount
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/jobs`);
+        if (!response.ok) {
+          throw new Error("Error while retrieving job listings");
         }
-      } else {
-        console.error("Payment command failed:", finalPayload);
-        setPaymentStatus("Payment failed.");
+        const data = await response.json();
+        // Add full image URL for each job
+        const jobsWithFullImageUrl = data.map(job => ({
+          ...job,
+          image: `${API_BASE_URL}${job.image}`
+        }));
+        setJobs(jobsWithFullImageUrl);
+      } catch (error) {
+        console.error("Error:", error);
       }
-    } catch (error) {
-      console.error("Error during payment process:", error);
-      setPaymentStatus("Payment error: " + error.message);
-    }
+    };
+    fetchJobs();
+  }, []);
+
+  // Functions to handle location dialog
+  const openLocationDialog = () => setLocationDialogOpen(true);
+  const closeLocationDialog = () => setLocationDialogOpen(false);
+  const handleLocationSelect = (location) => {
+    setSelectedLocation(location);
+    closeLocationDialog();
   };
 
   return (
-    <div className="min-h-screen relative">
-      <img
-        src={work2}
-        alt="Background"
-        className="absolute inset-0 w-full h-full object-cover"
-      />
-      <div className="relative z-10 flex flex-col items-center justify-center p-24 bg-white bg-opacity-80 rounded">
-        <h1 className="mb-4 text-2xl font-bold">Payment</h1>
-        <div className="mb-4 w-full max-w-md">
-          <label htmlFor="payAddress" className="block mb-1 font-medium">
-            Recipient Address:
-          </label>
-          <input
-            id="payAddress"
-            type="text"
-            value={payAddress}
-            onChange={(e) => setPayAddress(e.target.value)}
-            className="w-full border p-2 rounded"
-            placeholder="Enter recipient address"
-          />
-        </div>
-        <div className="mb-4 w-full max-w-md">
-          <label htmlFor="amount" className="block mb-1 font-medium">
-            Amount (WLD):
-          </label>
-          <input
-            id="amount"
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="w-full border p-2 rounded"
-            placeholder="Enter amount"
-          />
-        </div>
-        <button
-          onClick={handlePayment}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+    <div>
+      {/* Header */}
+      <Typography
+        variant="h4"
+        align="center"
+        sx={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          py: 2,
+          bgcolor: "white",
+          zIndex: 10,
+          fontFamily: "Roboto, sans-serif",
+          letterSpacing: "0.1em",
+        }}
+      >
+        Work Anywhere
+      </Typography>
+
+      {/* Main content */}
+      <Box
+        sx={{
+          position: "fixed",
+          top: "64px",
+          bottom: "80px",
+          left: 0,
+          right: 0,
+          bgcolor: "white",
+          p: 2,
+          zIndex: 10,
+          overflowY: "auto",
+        }}
+      >
+        {/* Search field */}
+        <TextField
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search..."
+          variant="standard"
+          fullWidth
+          sx={{ mt: 2 }}
+        />
+        {/* Location selector */}
+        <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
+          <Typography variant="subtitle1">
+            Location: {selectedLocation}
+          </Typography>
+          <IconButton onClick={openLocationDialog} size="small">
+            <LocationOn />
+          </IconButton>
+        </Box>
+
+        {/* Job listings */}
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          For you
+        </Typography>
+        <Box sx={{ display: "flex", overflowX: "auto", gap: 2, mt: 2, pb: 2 }}>
+          {jobs.map((job) => (
+            <Box key={job._id} sx={{ width: "300px", flexShrink: 0 }}>
+              <Card sx={{ boxShadow: "none", border: "1px solid #eee" }}>
+                <CardMedia
+                  component="img"
+                  image={job.image}
+                  alt={job.title}
+                  sx={{ height: 140, width: "100%", objectFit: "cover" }}
+                />
+                <CardContent sx={{ p: 1 }}>
+                  <Typography variant="h6">{job.title}</Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {job.description}
+                  </Typography>
+                </CardContent>
+                <CardActions sx={{ p: 1 }}>
+                  <Button
+                    variant="primary"
+                    size="md"
+                    style={{
+                      backgroundColor: "#222",
+                      borderColor: "#444",
+                      color: "#fff",
+                    }}
+                    onClick={() => navigate(`/job/${job._id}`)}
+                  >
+                    View Details
+                  </Button>
+                </CardActions>
+              </Card>
+            </Box>
+          ))}
+        </Box>
+
+        {/* Button to create a new job */}
+        <Button
+          variant="primary"
+          size="md"
+          onClick={() => navigate("/create-job")}
+          style={{
+            backgroundColor: "#222",
+            borderColor: "#444",
+            color: "#fff",
+            marginTop: "20px",
+          }}
         >
-          Pay
-        </button>
-        {paymentStatus && <p className="mt-4">{paymentStatus}</p>}
-      </div>
+          Create New Job
+        </Button>
+      </Box>
+
+      {/* Location dialog */}
+      <Dialog open={locationDialogOpen} onClose={closeLocationDialog}>
+        <DialogTitle>Select a Location</DialogTitle>
+        <DialogContent>
+          <List>
+            {locations.map((location, index) => (
+              <ListItem key={index} disablePadding divider>
+                <ListItemButton onClick={() => handleLocationSelect(location)}>
+                  <ListItemText primary={location} />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="primary" size="md" onClick={closeLocationDialog}>
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
